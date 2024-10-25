@@ -14,12 +14,6 @@ This project is a similarity-based book recommendation system that provides pers
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.8 or higher
-
-### Instructions
-
 1. **Clone the repository**:
     ```bash
     git clone https://github.com/yourusername/book-recommendation-system.git
