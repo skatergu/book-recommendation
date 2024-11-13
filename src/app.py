@@ -23,35 +23,29 @@ except Exception as e:
     print(e)  # Print the error message
     raise
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    try:
-        genres = books['Main Genre'].unique().tolist()  # Use 'Main Genre' instead of 'main genre'
-        authors = books['Author'].unique().tolist()  # Use 'Author' instead of 'author'
-        
-        print("\nAvailable genres:", genres)
-        print("\nAvailable authors:", authors)
-        
-        return render_template('index.html', 
-                             genres=genres,
-                             authors=authors)
-    except Exception as e:
-        print(f"Error in home route: {e}")
-        return str(e), 500
-
-@app.route('/', methods=['POST'])
-def get_recommendations():
-    try:
-        data = request.json
-        print("\nReceived request with data:", data)
-        
-        recommendations = recommendation_engine.get_recommendations(data)
-        print("\nGenerated recommendations:", recommendations)
-        
-        return jsonify(recommendations)
-    except Exception as e:
-        print(f"Error generating recommendations: {e}")
-        return jsonify({"error": str(e)}), 500
+    if request.method == 'GET':
+        try:
+            genres = books['Main Genre'].unique().tolist()  # Use 'Main Genre'
+            authors = books['Author'].unique().tolist()  # Use 'Author'
+            
+            return render_template('index.html', genres=genres, authors=authors)
+        except Exception as e:
+            print(f"Error in home route: {e}")
+            return str(e), 500
+    else:  # Handle POST requests for recommendations
+        try:
+            data = request.json
+            print("\nReceived request with data:", data)
+            
+            recommendations = recommendation_engine.get_recommendations(data)
+            print("\nGenerated recommendations:", recommendations)
+            
+            return jsonify(recommendations)
+        except Exception as e:
+            print(f"Error generating recommendations: {e}")
+            return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     port = 8000
