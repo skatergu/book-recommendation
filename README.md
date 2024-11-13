@@ -6,11 +6,13 @@ This project is a similarity-based book recommendation system that provides pers
 
 - **Filter by Title, Genre, Author, Rating, and Price**: Get personalized book recommendations using multiple filters.
 - **Content-Based Recommendations**: Uses cosine similarity to recommend books similar to a selected one.
+- **Mood-Based Recommendations**: Utilizes NLP techniques such as sentiment analysis, leveraging tools like TextBlob and Scikit-learn to preprocess text (tokenization, stopword removal) and perform syntactic and semantic analysis. This enables accurate mood-based book suggestions based on user sentiment found in reviews and descriptions.
 - **Search by Keyword**: Find books by searching for keywords in the title.
 - **List Available Genres and Authors**: Retrieve available genres and authors for easier selection.
 - **Display of Available Filters**: Buttons to display available genres and authors, dynamically loaded via the UI.
 - **Interactive Form**: Users can enter filters through an easy-to-use form to get recommendations.
 - **Flexible Filtering**: Users can input any combination of filters (title, genre, author, rating, and price range) to get recommendations. Filters are case-insensitive and support partial matching.
+- **Enhanced Recommendation Quality**: Integrates web-scraped book data from sources like Goodreads and Amazon to ensure diverse and comprehensive recommendations.
 
 ## Installation
 
