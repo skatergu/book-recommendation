@@ -4,35 +4,51 @@ from text_processing import TextProcessor
 from sklearn.metrics.pairwise import cosine_similarity
 
 class RecommendationEngine:
-    def __init__(self, books_df):
-        self.books_df = books_df
+    def __init__(self, books_df, limit_size=True):
+        print("Starting RecommendationEngine initialization")
+        if limit_size:
+            self.books_df = books_df.head(100).copy()  # Make a copy of the DataFrame
+        else:
+            self.books_df = books_df.copy()  # Ensure we are working with a copy
+        print("Books DataFrame shape:", self.books_df.shape)
+        
         self.text_processor = TextProcessor()
         self.content_vectors = None
         self.initialize_vectors()
+        print("RecommendationEngine initialization complete")
         
     def initialize_vectors(self):
         """Initialize TF-IDF vectors for content-based filtering"""
-        # Combine relevant text fields
+        print("    - Converting column names to lowercase and stripping spaces")
+        self.books_df.columns = self.books_df.columns.str.lower().str.strip()
+        
+        print("    - Filling NaN values")
+        text_columns = ['title', 'author', 'description', 'main genre']
+        self.books_df.loc[:, text_columns] = self.books_df[text_columns].fillna('')
+        
+        print("    - Combining text")
         combined_text = self.books_df.apply(
-            lambda x: f"{x['title']} {x['author']} {x['description']} {x['genre']}", 
+            lambda x: f"{x['title']} {x['author']} {x['description']} {x['main genre']}", 
             axis=1
         )
         
-        # Preprocess all texts
+        print("    - Processing texts")
         processed_texts = combined_text.apply(self.text_processor.preprocess_text)
         
-        # Create TF-IDF vectors
+        print("    - Creating TF-IDF vectors")
         self.content_vectors = self.text_processor.vectorizer.fit_transform(processed_texts)
         
-        # Process sentiments for all books
-        self.books_df['sentiment_analysis'] = self.books_df['description'].apply(
+        print("    - Processing sentiments")
+        self.books_df.loc[:, 'sentiment_analysis'] = self.books_df['description'].apply(
             self.text_processor.analyze_sentiment
         )
         
-        # Extract semantic features
-        self.books_df['semantic_features'] = self.books_df['description'].apply(
+        print("    - Extracting semantic features")
+        self.books_df.loc[:, 'semantic_features'] = self.books_df['description'].apply(
             self.text_processor.extract_semantic_features
         )
+        
+        print("    - Vector initialization complete")
     
     def get_recommendations(self, filters, user_mood=None):
         """Get recommendations based on filters and user mood"""

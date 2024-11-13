@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Recommendations</title>
+</head>
+<body>
+    <h1>Book Recommendation System</h1>
+    
+    <form id="recommendationForm">
+        <select id="genre" name="genre">
+            {% for genre in genres %}
+            <option value="{{ genre }}">{{ genre }}</option>
+            {% endfor %}
+        </select>
+        
+        <select id="author" name="author">
+            {% for author in authors %}
+            <option value="{{ author }}">{{ author }}</option>
+            {% endfor %}
+        </select>
+        
+        <input type="number" name="minRating" placeholder="Minimum Rating (e.g. 4.5)" min="0" max="5" step="0.1">
+        <input type="number" name="maxPrice" placeholder="Maximum Price (e.g. 20)" min="0">
+        
+        <button type="submit">Get Recommendations</button>
+    </form>
+
+    <div id="recommendations"></div>
+
+    <script>
+        document.getElementById('recommendationForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const recommendations = await response.json();
+                console.log('Received recommendations:', recommendations);
+                
+                const resultsDiv = document.getElementById('recommendations');
+                if (recommendations.error) {
+                    resultsDiv.innerHTML = `<p class="error">Error: ${recommendations.error}</p>`;
+                } else {
+                    resultsDiv.innerHTML = recommendations.map(book => `
+                        <div class="book">
+                            <h3>${book.title}</h3>
+                            <p>Author: ${book.author}</p>
+                            <p>Genre: ${book['main genre']}</p>
+                            <p>Rating: ${book.rating}</p>
+                            <p>Price: $${book.price}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('recommendations').innerHTML = 
+                    `<p class="error">Error fetching recommendations</p>`;
+            }
+        };
+    </script>
+</body>
+</html> 

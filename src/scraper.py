@@ -54,14 +54,14 @@ class BookScraper:
         if 'description' not in df.columns:
             df['description'] = ''
 
-        # Update descriptions for books without them
-        for index, row in df.iterrows():
-            if pd.isna(df.at[index, 'description']) or df.at[index, 'description'] == '':
-                print(f"Fetching description for: {row['Title']}")
-                description = self.get_book_description(row['Title'], row['Author'])
-                df.at[index, 'description'] = description
-                # Add delay to avoid hitting rate limits
-                time.sleep(2)
+        # # Update descriptions for books without them
+        # for index, row in df.iterrows():
+        #     if pd.isna(df.at[index, 'description']) or df.at[index, 'description'] == '':
+        #         print(f"Fetching description for: {row['Title']}")
+        #         description = self.get_book_description(row['Title'], row['Author'])
+        #         df.at[index, 'description'] = description
+        #         # Add delay to avoid hitting rate limits
+        #         time.sleep(2)
 
         df.to_csv(csv_path, index=False)
         return df
