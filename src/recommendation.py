@@ -1,8 +1,9 @@
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+from config import BOOKS_PATH
 
-books = pd.read_csv('../data/books.csv')
+books = pd.read_csv(BOOKS_PATH)
 # Clean up column names: strip spaces and convert to lowercase
 books.columns = books.columns.str.strip().str.lower()
 # Rename 'main genre' to 'genre' to simplify

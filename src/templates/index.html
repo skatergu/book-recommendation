@@ -29,6 +29,14 @@
         <label for="rating">Minimum Rating:</label>
         <input type="number" id="rating" name="rating" step="0.1" min="0" max="5" placeholder="e.g., 4.5">
         
+        <label for="mood">Mood:</label>
+        <select id="mood" name="mood">
+            <option value="">No preference</option>
+            <option value="positive">Positive</option>
+            <option value="neutral">Neutral</option>
+            <option value="negative">Negative</option>
+        </select>
+        
         <button type="submit">Get Recommendations</button>
     </form>
 
@@ -59,6 +67,7 @@
             const minPrice = parseFloat(document.getElementById('min_price').value);
             const maxPrice = parseFloat(document.getElementById('max_price').value);
             const rating = parseFloat(document.getElementById('rating').value);
+            const mood = document.getElementById('mood').value;
 
             const filters = {
                 title: title.trim(), 
@@ -68,7 +77,8 @@
                     isNaN(minPrice) ? 0 : minPrice,  
                     isNaN(maxPrice) ? Infinity : maxPrice 
                 ],
-                rating: isNaN(rating) ? 0 : rating  
+                rating: isNaN(rating) ? 0 : rating,
+                mood: mood
             };
             console.log("Sending Filters:", filters);  
 

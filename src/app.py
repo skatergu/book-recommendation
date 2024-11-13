@@ -2,11 +2,18 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from recommendation import recommend_by_filters, get_books, get_books_by_keyword, get_genres, get_subgenres
 from utils import sort_books
+from recommendation_engine import RecommendationEngine
+from scraper import BookScraper
+from config import BOOKS_PATH
 
 app = Flask(__name__)
 CORS(app)  
 
-books = get_books()
+# Initialize books and recommendation engine
+scraper = BookScraper()
+# Update books.csv with descriptions using absolute path
+books = scraper.update_books_csv(BOOKS_PATH)
+recommendation_engine = RecommendationEngine(books)
 
 @app.route('/')
 def home():
@@ -17,11 +24,14 @@ def home():
 def recommend():
     print("in route/recommendations")
     filters = {}
+    user_mood = None
+    
     # Handle POST requests (JSON or form)
     if request.method == 'POST':
         if request.is_json:  
             print("request is json")
             filters = request.get_json() or {}
+            user_mood = filters.get('mood')
         elif request.form: 
             print("request form")
             filters['genre'] = request.form.get('genre')
@@ -59,7 +69,7 @@ def recommend():
             ]
 
     print(f"Filters received: {filters}")
-    recommendations = recommend_by_filters(filters)
+    recommendations = recommendation_engine.get_recommendations(filters, user_mood)
     return jsonify(recommendations)
 
 # for searching books by keyword
