@@ -11,9 +11,9 @@ CORS(app)
 
 print("Loading data...")
 try:
-    books = pd.read_csv('data/books.csv')
+    books = pd.read_csv('../data/books.csv')
     print(f"Data loaded successfully! Shape: {books.shape}")
-    print("Columns in DataFrame:", books.columns.tolist())  # Print column names
+    # print("Columns in DataFrame:", books.columns.tolist())
     
     print("Creating recommendation engine...")
     recommendation_engine = RecommendationEngine(books, limit_size=True)
@@ -25,7 +25,7 @@ except Exception as e:
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    if request.method == 'GET':
+    if request.method == 'GET' or request.method == 'POST':
         try:
             genres = books['Main Genre'].unique().tolist()  # Use 'Main Genre'
             authors = books['Author'].unique().tolist()  # Use 'Author'
@@ -46,6 +46,26 @@ def home():
         except Exception as e:
             print(f"Error generating recommendations: {e}")
             return jsonify({"error": str(e)}), 500
+        
+@app.route('/genres', methods=['GET'])
+def get_genres():
+    try:
+        genres = books['Main Genre'].unique().tolist()
+        return jsonify({"genres": genres})
+    except Exception as e:
+        print(f"Error in /genres endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/authors', methods=['GET'])
+def get_authors():
+    try:
+        authors = books['Author'].unique().tolist()
+        return jsonify({"authors": authors})
+    except Exception as e:
+        print(f"Error in /authors endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     port = 8000
