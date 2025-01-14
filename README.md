@@ -32,13 +32,10 @@ This project is a similarity-based book recommendation system that provides pers
     pip install -r requirements.txt
     ```
 
-4. **Prepare the Dataset**:
-   Place the `books.csv` file in the `data/` directory.
-
-5. **Run the Application**:
+4. **Run the Application**:
     ```bash
     python app.py
     ```
 
-6. **Access the Application**:
+5. **Access the Application**:
    Visit `http://127.0.0.1:5000/` in your browser.
