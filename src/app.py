@@ -23,6 +23,16 @@ except Exception as e:
     print(e)  # Print the error message
     raise
 
+@app.route('/initial-data', methods=['GET'])
+def get_initial_data():
+    try:
+        genres = books['Main Genre'].dropna().unique().tolist()
+        authors = books['Author'].dropna().unique().tolist()
+        return jsonify({"genres": genres, "authors": authors})
+    except Exception as e:
+        print(f"Error in /initial-data endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'GET' or request.method == 'POST':
