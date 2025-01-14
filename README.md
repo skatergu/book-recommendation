@@ -32,10 +32,15 @@ This project is a similarity-based book recommendation system that provides pers
     pip install -r requirements.txt
     ```
 
-4. **Run the Application**:
+4. **Navigate to the `src` Directory**:
+    ```bash
+    cd src
+    ```
+
+5. **Run the Application**:
     ```bash
     python app.py
     ```
 
-5. **Access the Application**:
+6. **Access the Application**:
    Visit `http://127.0.0.1:5000/` in your browser.
