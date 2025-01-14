@@ -76,6 +76,21 @@ def get_authors():
         print(f"Error in /authors endpoint: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/recommendations', methods=['POST'])
+def get_recommendations():
+    try:
+        data = request.json
+        print("\nReceived request with data:", data)
+
+        recommendations = recommendation_engine.get_recommendations(data)
+        print("\nGenerated recommendations:", recommendations)
+        
+        return jsonify(recommendations)
+    except Exception as e:
+        print(f"Error in /recommendations endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     port = 8000
