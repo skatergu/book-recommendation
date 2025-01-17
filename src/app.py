@@ -13,14 +13,13 @@ print("Loading data...")
 try:
     books = pd.read_csv('../data/books.csv')
     print(f"Data loaded successfully! Shape: {books.shape}")
-    # print("Columns in DataFrame:", books.columns.tolist())
     
     print("Creating recommendation engine...")
     recommendation_engine = RecommendationEngine(books, limit_size=True)
     print("Recommendation engine created successfully!")
 except Exception as e:
     print("Error during initialization:")
-    print(e)  # Print the error message
+    print(e) 
     raise
 
 @app.route('/initial-data', methods=['GET'])
@@ -37,8 +36,8 @@ def get_initial_data():
 def home():
     if request.method == 'GET' or request.method == 'POST':
         try:
-            genres = books['Main Genre'].unique().tolist()  # Use 'Main Genre'
-            authors = books['Author'].unique().tolist()  # Use 'Author'
+            genres = books['Main Genre'].unique().tolist() 
+            authors = books['Author'].unique().tolist() 
             
             return render_template('index.html', genres=genres, authors=authors)
         except Exception as e:
