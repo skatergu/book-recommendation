@@ -1,9 +1,8 @@
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-from config import BOOKS_PATH
 
-books = pd.read_csv(BOOKS_PATH)
+books = pd.read_csv('../data/books.csv')
 # Clean up column names: strip spaces and convert to lowercase
 books.columns = books.columns.str.strip().str.lower()
 # Rename 'main genre' to 'genre' to simplify
@@ -94,9 +93,6 @@ def recommend_by_filters(filters):
 
     return filtered_books[['title', 'author', 'price']].to_dict(orient='records')
 
-
-    # return filtered_books['title'].tolist()
-    # return filtered_books.to_dict(orient='records')
 
 
 

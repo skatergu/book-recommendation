@@ -11,6 +11,7 @@ class RecommendationEngine:
         else:
             self.books_df = books_df.copy()  # Ensure we are working with a copy
         print("Books DataFrame shape:", self.books_df.shape)
+        print(self.books_df.head(10))  # Print the first 10 rows of the DataFrame
         
         self.text_processor = TextProcessor()
         self.content_vectors = None
@@ -48,30 +49,47 @@ class RecommendationEngine:
             self.text_processor.extract_semantic_features
         )
         
+        # Convert price and rating columns to numeric
+        self.books_df['price'] = pd.to_numeric(self.books_df['price'], errors='coerce')
+        self.books_df['rating'] = pd.to_numeric(self.books_df['rating'], errors='coerce')
+        
         print("    - Vector initialization complete")
     
-    def get_recommendations(self, filters, user_mood=None):
-        """Get recommendations based on filters and user mood"""
-        # Initial filtering based on basic criteria
-        filtered_books = self._apply_basic_filters(filters)
-        
-        if filtered_books.empty:
-            return []
-        
-        # Get content-based similarities
-        similarities = self._get_content_similarities(filters)
-        
-        # Apply mood-based filtering if specified
-        if user_mood:
-            filtered_books = self._apply_mood_filtering(filtered_books, user_mood)
-        
-        # Combine all scores
-        final_scores = self._combine_scores(filtered_books, similarities)
-        
-        # Get top recommendations
-        recommendations = self._get_top_recommendations(filtered_books, final_scores)
-        
-        return recommendations.to_dict('records')
+    def get_recommendations(self, filters):
+        # Extract filters
+        title = filters.get('title', '').strip()
+        genre = filters.get('genre', '').strip()
+        author = filters.get('author', '').strip()
+        price_range = filters.get('price_range', [0, 800])  # Default max price to 800
+        rating = filters.get('rating', 0)
+        mood = filters.get('mood', '')
+
+        # Validate price range
+        min_price, max_price = price_range
+        if min_price is None:
+            min_price = 0
+        if max_price is None:
+            max_price = 800  # Set default max price to 800
+
+        # Build the filtering mask
+        mask = pd.Series(True, index=self.books_df.index)  # Start with all True
+
+        if title:
+            mask &= self.books_df['title'].str.contains(title, case=False, na=False)
+        if genre:
+            mask &= self.books_df['main genre'].str.contains(genre, case=False, na=False)
+        if author:
+            mask &= self.books_df['author'].str.contains(author, case=False, na=False)
+        mask &= (self.books_df['price'] >= min_price) & (self.books_df['price'] <= max_price)
+        mask &= (self.books_df['rating'] >= rating)
+
+        recommendations = self.books_df[mask]
+
+        # Debugging output
+        print("Mask:", mask)
+        print("Filtered recommendations:", recommendations)
+
+        return recommendations.to_dict(orient='records')
     
     def _apply_basic_filters(self, filters):
         """Apply basic filters (price, rating, etc.)"""

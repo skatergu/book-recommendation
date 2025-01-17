@@ -15,20 +15,10 @@
         <input type="text" id="title" name="title" placeholder="e.g., Harry Potter">
 
         <label for="genre">Genre:</label>
-        <select id="genre" name="genre" placeholder="e.g., Sports">
-            <option value="">No preference</option>
-            <option value="positive">Positive</option>
-            <option value="neutral">Neutral</option>
-            <option value="negative">Negative</option>
-        </select>
+        <input type="text" id="genre" name="genre" placeholder="e.g., Sports">
         
         <label for="author">Author:</label>
-        <select id="author" name="author" placeholder="e.g., J.K. Rowling">
-            <option value="">No preference</option>
-            <option value="positive">Positive</option>
-            <option value="neutral">Neutral</option>
-            <option value="negative">Negative</option>
-        </select>
+        <input type="text" id="author" name="author" placeholder="e.g., J.K. Rowling">
         
         <label for="min_price">Min Price (USD):</label>
         <input type="number" id="min_price" name="min_price" step="0.01" placeholder="e.g., 10.00">
@@ -67,72 +57,148 @@
     <div id="recommendations"></div>
 
     <script>
-        document.getElementById('recommendationForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            
-            try {
-                const response = await fetch('/', {  // Change to main endpoint
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const recommendations = await response.json();
-                console.log('Received recommendations:', recommendations);
-                
-                const resultsDiv = document.getElementById('recommendations');
-                if (recommendations.error) {
-                    resultsDiv.innerHTML = `<p class="error">Error: ${recommendations.error}</p>`;
-                } else {
-                    resultsDiv.innerHTML = recommendations.map(book => `
-                        <div class="book">
-                            <h3>${book.title}</h3>
-                            <p>Author: ${book.author}</p>
-                            <p>Genre: ${book['main genre']}</p>
-                            <p>Rating: ${book.rating}</p>
-                            <p>Price: $${book.price}</p>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('recommendations').innerHTML = 
-                    `<p class="error">Error fetching recommendations</p>`;
-            }
-        };
-
-        // Fetch genres and authors on page load
+        // Function to fetch initial data (genres and authors)
         async function fetchInitialData() {
             try {
-                const response = await fetch('/');  // Fetch from main endpoint
-                const data = await response.json();
-                console.log('Initial data:', data);
-                // Populate genres and authors in the UI
-                const genreSelect = document.getElementById('genre');
-                const authorSelect = document.getElementById('author');
+                const response = await fetch('/');  // Fetch from the main endpoint
+                console.log("Response status:", response.status);  // Log the response status
 
-                data.genres.forEach(genre => {
-                    const option = document.createElement('option');
-                    option.value = genre;
-                    option.textContent = genre;
-                    genreSelect.appendChild(option);
-                });
+                if (response.ok) {  // Check if the response is successful
+                    const data = await response.json();
+                    console.log('Initial data:', data);
+                    
+                    // Populate genres and authors in the UI
+                    const genreSelect = document.getElementById('genre');
+                    const authorSelect = document.getElementById('author');
 
-                data.authors.forEach(author => {
-                    const option = document.createElement('option');
-                    option.value = author;
-                    option.textContent = author;
-                    authorSelect.appendChild(option);
-                });
+                    data.genres.forEach(genre => {
+                        const option = document.createElement('option');
+                        option.value = genre;
+                        option.textContent = genre;
+                        genreSelect.appendChild(option);
+                    });
+
+                    data.authors.forEach(author => {
+                        const option = document.createElement('option');
+                        option.value = author;
+                        option.textContent = author;
+                        authorSelect.appendChild(option);
+                    });
+                } else {
+                    console.error("Failed to fetch initial data:", response.status, response.statusText);
+                }
             } catch (error) {
-                console.error('Error fetching initial data:', error);
+                console.error("Error fetching initial data:", error);
             }
         }
 
+        // Handle form submission
+        document.getElementById('recommendationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value || '';  
+            const genre = document.getElementById('genre').value || ''; 
+            const author = document.getElementById('author').value || '';  
+            const minPrice = parseFloat(document.getElementById('min_price').value);
+            const maxPrice = parseFloat(document.getElementById('max_price').value);
+            const rating = parseFloat(document.getElementById('rating').value);
+            const mood = document.getElementById('mood').value;
+
+            const filters = {
+                title: title.trim(), 
+                genre: genre.trim(),
+                author: author.trim(),
+                price_range: [
+                    isNaN(minPrice) ? 0 : minPrice,  
+                    isNaN(maxPrice) ? Infinity : maxPrice 
+                ],
+                rating: isNaN(rating) ? 0 : rating,
+                mood: mood
+            };
+            console.log("Sending Filters:", filters);  
+
+            fetch('/', {  // Change to main endpoint
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const recommendationsDiv = document.getElementById('recommendations');
+                recommendationsDiv.innerHTML = '';
+                if (data.length > 0) {
+                    const ul = document.createElement('ul');
+                    data.forEach(book => {
+                        const li = document.createElement('li');
+                        li.textContent = `${book.title} by ${book.author} - $${book.price}`;
+                        ul.appendChild(li);
+                    });
+                    recommendationsDiv.appendChild(ul);
+                } else {
+                    recommendationsDiv.textContent = 'No recommendations found. Try adjusting the filters!';
+                }
+            })
+            .catch(error => console.error('Error when return:', error));
+        });
+
+        // Function to toggle visibility of a div
+        function toggleVisibility(elementId) {
+            const element = document.getElementById(elementId);
+            if (element.style.display === 'none' || element.style.display === '') {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        }
+
+        // Fetch and display available genres
+        document.getElementById('loadGenres').addEventListener('click', function() {
+            toggleVisibility('genres');
+            console.log("genres clicked");
+            if (document.getElementById('genres').innerHTML === '') {
+                fetch('/genres')
+                    .then(response => response.json())
+                    .then(data => {
+                        const genresDiv = document.getElementById('genres');
+                        genresDiv.innerHTML = '';
+                        const ul = document.createElement('ul');
+                        data.forEach(genre => {
+                            const li = document.createElement('li');
+                            li.textContent = genre;
+                            ul.appendChild(li);
+                        });
+                        genresDiv.appendChild(ul);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+
+        // Fetch and display available authors
+        document.getElementById('loadAuthors').addEventListener('click', function() {
+            toggleVisibility('authors');            
+            console.log("authors clicked");
+
+            if (document.getElementById('authors').innerHTML === '') {
+                fetch('/authors')  // Assuming there's an endpoint to fetch authors
+                    .then(response => response.json())
+                    .then(data => {
+                        const authorsDiv = document.getElementById('authors');
+                        authorsDiv.innerHTML = '';
+                        const ul = document.createElement('ul');
+                        data.forEach(author => {
+                            const li = document.createElement('li');
+                            li.textContent = author;
+                            ul.appendChild(li);
+                        });
+                        authorsDiv.appendChild(ul);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+
+        // Call the function to fetch initial data
         fetchInitialData();
     </script>
 </body>

@@ -12,13 +12,11 @@ print("Starting TextProcessor initialization...")
 
 def download_nltk_data():
     print("Downloading NLTK data...")
-    nltk.download('punkt')
     nltk.download('stopwords')
     nltk.download('wordnet')
     nltk.download('averaged_perceptron_tagger')
     print("NLTK data downloaded successfully!")
 
-print("Loading spaCy model...")
 try:
     nlp = spacy.load('en_core_web_sm')
     print("spaCy model loaded successfully!")
@@ -28,7 +26,6 @@ except Exception as e:
 
 class TextProcessor:
     def __init__(self):
-        print("Initializing TextProcessor...")
         download_nltk_data()
         self.lemmatizer = WordNetLemmatizer()
         self.stop_words = set(stopwords.words('english'))
