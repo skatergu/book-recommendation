@@ -28,13 +28,50 @@
     <div id="recommendations"></div>
 
     <script>
+        // Fetch initial data (genres and authors) when the page loads
+        async function fetchInitialData() {
+            try {
+                const response = await fetch('/initial-data');  // Fetch from /initial-data endpoint
+                console.log("Response status:", response.status);  // Log the response status
+
+                if (response.ok) {  // Check if the response is successful
+                    const data = await response.json();
+                    console.log('Initial data:', data);
+                    
+                    // Populate genres and authors in the UI
+                    const genreSelect = document.getElementById('genre');
+                    const authorSelect = document.getElementById('author');
+
+                    data.genres.forEach(genre => {
+                        const option = document.createElement('option');
+                        option.value = genre;
+                        option.textContent = genre;
+                        genreSelect.appendChild(option);
+                    });
+
+                    data.authors.forEach(author => {
+                        const option = document.createElement('option');
+                        option.value = author;
+                        option.textContent = author;
+                        authorSelect.appendChild(option);
+                    });
+                } else {
+                    console.error("Failed to fetch initial data:", response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error("Error fetching initial data:", error);
+            }
+        }
+
+        // Form submission to get book recommendations
         document.getElementById('recommendationForm').onsubmit = async (e) => {
-            e.preventDefault();
+            e.preventDefault();  // Prevent page reload on form submission
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData);
-            
+
             try {
-                const response = await fetch('/initial-data', {
+                // Send the form data to the /recommendations endpoint
+                const response = await fetch('/recommendations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -65,6 +102,9 @@
                     `<p class="error">Error fetching recommendations</p>`;
             }
         };
+
+        // Call the function to fetch initial data when the page loads
+        fetchInitialData();
     </script>
 </body>
-</html> 
+</html>
