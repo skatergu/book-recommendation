@@ -57,17 +57,15 @@
     <div id="recommendations"></div>
 
     <script>
-        // Function to fetch initial data (genres and authors)
         async function fetchInitialData() {
             try {
-                const response = await fetch('/');  // Fetch from the main endpoint
-                console.log("Response status:", response.status);  // Log the response status
+                const response = await fetch('/');  
+                console.log("Response status:", response.status);  
 
-                if (response.ok) {  // Check if the response is successful
+                if (response.ok) {  
                     const data = await response.json();
                     console.log('Initial data:', data);
                     
-                    // Populate genres and authors in the UI
                     const genreSelect = document.getElementById('genre');
                     const authorSelect = document.getElementById('author');
 
@@ -198,7 +196,6 @@
             }
         });
 
-        // Call the function to fetch initial data
         fetchInitialData();
     </script>
 </body>
